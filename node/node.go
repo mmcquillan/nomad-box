@@ -32,7 +32,7 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 	// import
 	if cfg.Import {
 		nodes = importNodes(cfg)
-		fmt.Println("Importing Nodes...")
+		fmt.Println("[NOMAD-SIM] Importing Nodes...")
 		for i := 0; i < len(nodes); i++ {
 			printNode(nodes[i])
 		}
@@ -42,8 +42,10 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 	// node marker
 	marker := 0
 
+	// start feedback
+	fmt.Println("[NOMAD-SIM] Mapping Nodes...")
+
 	// make servers
-	fmt.Println("Mapping Servers...")
 	for s := 0; s < cfg.Servers; s++ {
 		nodes[marker].Server = true
 		nodes[marker].Binary = cfg.Binary
@@ -52,6 +54,9 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 		nodes[marker].Dc = "dc1"
 		nodes[marker].Ip = cfg.Ips[marker]
 		nodes[marker].Device = cfg.Prefix + "eth" + strconv.Itoa(marker)
+		if s == 0 && cfg.BindServer != "" {
+			nodes[marker].Device = cfg.BindServer
+		}
 		nodes[marker].Dir = cfg.Directory + "/" + nodes[marker].Name
 		nodes[marker].Pid = 0
 		printNode(nodes[marker])
@@ -59,7 +64,6 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 	}
 
 	// make clients
-	fmt.Println("Mapping Clients...")
 	for c := 0; c < cfg.Clients; c++ {
 		nodes[marker].Server = false
 		nodes[marker].Binary = cfg.Binary
@@ -84,12 +88,12 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 
 func BuildNodes(cfg config.Config, nodes []Node) {
 
-	fmt.Println("Building Nodes...")
+	fmt.Println("[NOMAD-SIM] Building Nodes...")
 
 	// check the nodes
 	for i := 0; i < len(nodes); i++ {
 
-		fmt.Println(" - Starting " + nodes[i].Name)
+		printNode(nodes[i])
 
 		// node networking and directory space
 		makeNodeResources(cfg, nodes[i])
@@ -140,10 +144,10 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 }
 
 func CleanNodes(cfg config.Config, nodes []Node) {
-	fmt.Println("Cleaning Nodes...")
+	fmt.Println("[NOMAD-SIM] Cleaning Nodes...")
 	for i := 0; i < len(nodes); i++ {
 		if !nodes[i].Server {
-			fmt.Println(" - Removing " + nodes[i].Name)
+			printNode(nodes[i])
 			cleanNodeProcess(cfg, nodes[i])
 			if !cfg.Persist {
 				cleanNodeResources(cfg, nodes[i])
@@ -152,7 +156,7 @@ func CleanNodes(cfg config.Config, nodes []Node) {
 	}
 	for i := 0; i < len(nodes); i++ {
 		if nodes[i].Server {
-			fmt.Println(" - Removing " + nodes[i].Name)
+			printNode(nodes[i])
 			cleanNodeProcess(cfg, nodes[i])
 			if !cfg.Persist {
 				cleanNodeResources(cfg, nodes[i])
@@ -162,9 +166,9 @@ func CleanNodes(cfg config.Config, nodes []Node) {
 }
 
 func CleanNodeResources(cfg config.Config, nodes []Node) {
-	fmt.Println("Cleaning Node Resources...")
+	fmt.Println("[NOMAD-SIM] Cleaning Node Resources...")
 	for i := 0; i < len(nodes); i++ {
-		fmt.Println(" - Removing " + nodes[i].Name)
+		printNode(nodes[i])
 		cleanNodeResources(cfg, nodes[i])
 	}
 }
@@ -188,27 +192,35 @@ func makeNodeResources(cfg config.Config, node Node) {
 
 func makeNodeResourcesNetwork(cfg config.Config, node Node) {
 
-	// setup network device
-	run.Command("ip link add " + node.Device + " type dummy")
+	if cfg.BindServer != node.Device {
 
-	// set mac address
-	run.Command("ip link set dev " + node.Device + " address " + network.GenerateMac())
+		// setup network device
+		run.Command("ip link add " + node.Device + " type dummy")
 
-	// set IP address
-	run.Command("ip addr add " + node.Ip + "/24 brd + dev " + node.Device + " label " + node.Device + ":0")
+		// set mac address
+		run.Command("ip link set dev " + node.Device + " address " + network.GenerateMac())
 
-	// bring up device
-	run.Command("ip link set dev " + node.Device + " up")
+		// set IP address
+		run.Command("ip addr add " + node.Ip + "/24 brd + dev " + node.Device + " label " + node.Device + ":0")
+
+		// bring up device
+		run.Command("ip link set dev " + node.Device + " up")
+
+	}
 
 }
 
 func cleanNodeResources(cfg config.Config, node Node) {
 
-	// delete address from device
-	run.Command("ip addr del " + node.Ip + "/24 brd + dev " + node.Device + " label " + node.Device + ":0")
+	if cfg.BindServer != node.Device {
 
-	// delete network device
-	run.Command("ip link delete " + node.Device + " type dummy")
+		// delete address from device
+		run.Command("ip addr del " + node.Ip + "/24 brd + dev " + node.Device + " label " + node.Device + ":0")
+
+		// delete network device
+		run.Command("ip link delete " + node.Device + " type dummy")
+
+	}
 
 	// delete server directory
 	time.Sleep(3 * time.Second)

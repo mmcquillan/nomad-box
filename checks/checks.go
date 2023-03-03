@@ -13,7 +13,7 @@ import (
 
 func Checks(cfg *config.Config) {
 
-	fmt.Println("Sim Checks...")
+	fmt.Println("[NOMAD-SIM] Pre Checks...")
 
 	// check we are on a supported OS
 	fmt.Println(" - Checking OS")
@@ -82,6 +82,20 @@ func Checks(cfg *config.Config) {
 		fmt.Println("   ERROR: Cidr does not allow enough IP's")
 		if !cfg.Plan {
 			os.Exit(2)
+		}
+	}
+
+	// check server device
+	if cfg.BindServer != "" {
+		fmt.Println(" - Checking Bind Server")
+		ip := network.GetIpFromDevice(cfg.BindServer)
+		if ip == "" {
+			fmt.Println("   ERROR: Could not find device for Bind Server")
+			if !cfg.Plan {
+				os.Exit(2)
+			}
+		} else {
+			cfg.Ips[0] = ip
 		}
 	}
 

@@ -32,3 +32,24 @@ func CidrToIps(cidr string) ([]string, error) {
 	}
 	return ips[1 : len(ips)-1], nil
 }
+
+func GetIpFromDevice(device string) (ip string) {
+	devices, err := net.Interfaces()
+	if err != nil {
+		return ip
+	}
+	for _, d := range devices {
+		if d.Name == device {
+			addrs, err := d.Addrs()
+			if err != nil {
+				return ip
+			}
+			for _, addr := range addrs {
+				ip = addr.String()
+				ip = strings.TrimRight(ip, "/24")
+				return ip
+			}
+		}
+	}
+	return ip
+}

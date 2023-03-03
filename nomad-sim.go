@@ -26,7 +26,7 @@ func main() {
 
 	// plan exit
 	if cfg.Plan {
-		fmt.Println("Plan Mode (quitting)")
+		fmt.Println("[NOMAD-SIM] Plan Mode (quitting)")
 		os.Exit(0)
 	}
 
@@ -34,7 +34,7 @@ func main() {
 	node.BuildNodes(cfg, nodes)
 
 	// wait to quit
-	fmt.Print("Cluster Running (enter to quit)")
+	fmt.Print("[NOMAD-SIM] Cluster Running (enter to quit)")
 	fmt.Scanln()
 
 	// clean up
