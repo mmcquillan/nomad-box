@@ -24,7 +24,7 @@ func MakeConfig() (cfg Config) {
 	flag.IntVar(&cfg.Servers, "servers", 3, "Number of Servers")
 	flag.IntVar(&cfg.Clients, "clients", 6, "Number of Clients")
 	flag.StringVar(&cfg.Binary, "binary", "/usr/bin/nomad", "Location of Nomad Binary")
-	flag.StringVar(&cfg.Directory, "directory", "/tmp/nomad-sim", "Working Directory")
+	flag.StringVar(&cfg.Directory, "directory", "/tmp/nomad-box", "Working Directory")
 	flag.StringVar(&cfg.Cidr, "cidr", "10.10.10.0/24", "CIDR Block for IP Assignment")
 	flag.StringVar(&cfg.BindServer, "bind-server", "", "Network device or IP to bind the first server to")
 	flag.StringVar(&cfg.Prefix, "prefix", "nmd", "Prefix of Nomad Cluster Members")

@@ -1,4 +1,4 @@
-module github.com/mmcquillan/nomad-sim
+module github.com/mmcquillan/nomad-box
 
 go 1.20
 

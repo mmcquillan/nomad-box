@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mmcquillan/nomad-sim/checks"
-	"github.com/mmcquillan/nomad-sim/config"
-	"github.com/mmcquillan/nomad-sim/node"
+	"github.com/mmcquillan/nomad-box/checks"
+	"github.com/mmcquillan/nomad-box/config"
+	"github.com/mmcquillan/nomad-box/node"
 )
 
 func main() {
@@ -26,7 +26,7 @@ func main() {
 
 	// plan exit
 	if cfg.Plan {
-		fmt.Println("[NOMAD-SIM] Plan Mode (quitting)")
+		fmt.Println("[NOMAD-BOX] Plan Mode (quitting)")
 		os.Exit(0)
 	}
 
@@ -34,7 +34,7 @@ func main() {
 	node.BuildNodes(cfg, nodes)
 
 	// wait to quit
-	fmt.Print("[NOMAD-SIM] Cluster Running (enter to quit)")
+	fmt.Print("[NOMAD-BOX] Cluster Running (enter to quit)")
 	fmt.Scanln()
 
 	// clean up

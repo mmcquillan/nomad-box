@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mmcquillan/nomad-sim/config"
-	"github.com/mmcquillan/nomad-sim/network"
-	"github.com/mmcquillan/nomad-sim/run"
+	"github.com/mmcquillan/nomad-box/config"
+	"github.com/mmcquillan/nomad-box/network"
+	"github.com/mmcquillan/nomad-box/run"
 )
 
 type Node struct {
@@ -32,7 +32,7 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 	// import
 	if cfg.Import {
 		nodes = importNodes(cfg)
-		fmt.Println("[NOMAD-SIM] Importing Nodes...")
+		fmt.Println("[NOMAD-BOX] Importing Nodes...")
 		for i := 0; i < len(nodes); i++ {
 			printNode(nodes[i])
 		}
@@ -43,7 +43,7 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 	marker := 0
 
 	// start feedback
-	fmt.Println("[NOMAD-SIM] Mapping Nodes...")
+	fmt.Println("[NOMAD-BOX] Mapping Nodes...")
 
 	// make servers
 	for s := 0; s < cfg.Servers; s++ {
@@ -88,7 +88,7 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 
 func BuildNodes(cfg config.Config, nodes []Node) {
 
-	fmt.Println("[NOMAD-SIM] Building Nodes...")
+	fmt.Println("[NOMAD-BOX] Building Nodes...")
 
 	// check the nodes
 	for i := 0; i < len(nodes); i++ {
@@ -144,7 +144,7 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 }
 
 func CleanNodes(cfg config.Config, nodes []Node) {
-	fmt.Println("[NOMAD-SIM] Cleaning Nodes...")
+	fmt.Println("[NOMAD-BOX] Cleaning Nodes...")
 	for i := 0; i < len(nodes); i++ {
 		if !nodes[i].Server {
 			printNode(nodes[i])
@@ -166,7 +166,7 @@ func CleanNodes(cfg config.Config, nodes []Node) {
 }
 
 func CleanNodeResources(cfg config.Config, nodes []Node) {
-	fmt.Println("[NOMAD-SIM] Cleaning Node Resources...")
+	fmt.Println("[NOMAD-BOX] Cleaning Node Resources...")
 	for i := 0; i < len(nodes); i++ {
 		printNode(nodes[i])
 		cleanNodeResources(cfg, nodes[i])

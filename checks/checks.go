@@ -7,18 +7,18 @@ import (
 	"os/user"
 	"runtime"
 
-	"github.com/mmcquillan/nomad-sim/config"
-	"github.com/mmcquillan/nomad-sim/network"
+	"github.com/mmcquillan/nomad-box/config"
+	"github.com/mmcquillan/nomad-box/network"
 )
 
 func Checks(cfg *config.Config) {
 
-	fmt.Println("[NOMAD-SIM] Pre Checks...")
+	fmt.Println("[NOMAD-BOX] Pre Checks...")
 
 	// check we are on a supported OS
 	fmt.Println(" - Checking OS")
 	if runtime.GOOS != "linux" {
-		fmt.Println("   ERROR: nomad-sim is made for the linux platform")
+		fmt.Println("   ERROR: nomad-box is made for the linux platform")
 		if !cfg.Plan {
 			os.Exit(2)
 		}
@@ -34,7 +34,7 @@ func Checks(cfg *config.Config) {
 		}
 	}
 	if user.Username != "root" {
-		fmt.Println("   ERROR: nomad-sim must be run with root privledge")
+		fmt.Println("   ERROR: nomad-box must be run with root privledge")
 		if !cfg.Plan {
 			os.Exit(2)
 		}
