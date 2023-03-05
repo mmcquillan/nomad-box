@@ -12,6 +12,8 @@ type Config struct {
 	Prefix       string
 	ServerPrefix string
 	ClientPrefix string
+	ServerConfig string
+	ClientConfig string
 	Export       bool
 	Import       bool
 	Persist      bool
@@ -30,6 +32,8 @@ func MakeConfig() (cfg Config) {
 	flag.StringVar(&cfg.Prefix, "prefix", "nmd", "Prefix of Nomad Cluster Members")
 	flag.StringVar(&cfg.ServerPrefix, "server-prefix", "s", "Prefix of Nomad Servers")
 	flag.StringVar(&cfg.ClientPrefix, "client-prefix", "c", "Prefix of Nomad Clients")
+	flag.StringVar(&cfg.ServerConfig, "server-config", "", "Path to a Server Config")
+	flag.StringVar(&cfg.ClientConfig, "client-config", "", "Path to a Client Config")
 	flag.BoolVar(&cfg.Export, "export", false, "Export Nomad Node Layout")
 	flag.BoolVar(&cfg.Import, "import", false, "Import Nomad Node Layout")
 	flag.BoolVar(&cfg.Persist, "persist", false, "Persist resources after run")

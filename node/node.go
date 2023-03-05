@@ -21,6 +21,7 @@ type Node struct {
 	Ip     string
 	Device string
 	Dir    string
+	Config string
 	Pid    int `json:"-"`
 }
 
@@ -58,6 +59,9 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 			nodes[marker].Device = cfg.BindServer
 		}
 		nodes[marker].Dir = cfg.Directory + "/" + nodes[marker].Name
+		if cfg.ServerConfig != "" {
+			nodes[marker].Config = cfg.ServerConfig
+		}
 		nodes[marker].Pid = 0
 		printNode(nodes[marker])
 		marker++
@@ -74,6 +78,9 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 		nodes[marker].Device = cfg.Prefix + "eth" + strconv.Itoa(marker)
 		nodes[marker].Pid = 0
 		nodes[marker].Dir = cfg.Directory + "/" + nodes[marker].Name
+		if cfg.ClientConfig != "" {
+			nodes[marker].Config = cfg.ClientConfig
+		}
 		printNode(nodes[marker])
 		marker++
 	}
@@ -108,6 +115,9 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 			nomad += " -bootstrap-expect=" + strconv.Itoa(cfg.Servers)
 			nomad += " -data-dir=" + nodes[i].Dir
 			nomad += " -dc=" + nodes[i].Dc
+			if nodes[i].Config != "" {
+				nomad += " -config=" + nodes[i].Config
+			}
 			for j := 0; j < len(nodes); j++ {
 				if nodes[j].Server {
 					nomad += " -join=" + nodes[j].Ip
@@ -128,6 +138,9 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 			nomad += " -client"
 			nomad += " -data-dir=" + nodes[i].Dir
 			nomad += " -dc=" + nodes[i].Dc
+			if nodes[i].Config != "" {
+				nomad += " -config=" + nodes[i].Config
+			}
 			for j := 0; j < len(nodes); j++ {
 				if nodes[j].Server {
 					nomad += " -servers=" + nodes[j].Ip + ":4647"

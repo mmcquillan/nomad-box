@@ -65,6 +65,28 @@ func Checks(cfg *config.Config) {
 		}
 	}
 
+	// check server config
+	if cfg.ServerConfig != "" {
+		fmt.Println(" - Checking Server Config")
+		if _, err := os.Stat(cfg.ServerConfig); err != nil {
+			fmt.Println("   ERROR: Server Config does not exist")
+			if !cfg.Plan {
+				os.Exit(2)
+			}
+		}
+	}
+
+	// check client config
+	if cfg.ClientConfig != "" {
+		fmt.Println(" - Checking Client Config")
+		if _, err := os.Stat(cfg.ClientConfig); err != nil {
+			fmt.Println("   ERROR: Client Config does not exist")
+			if !cfg.Plan {
+				os.Exit(2)
+			}
+		}
+	}
+
 	// check cidr
 	fmt.Println(" - Checking Cidr Formatting")
 	cfg.Ips, err = network.CidrToIps(cfg.Cidr)
