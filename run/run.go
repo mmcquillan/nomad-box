@@ -1,6 +1,7 @@
 package run
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -69,35 +70,36 @@ func CommandContains(command string, match string) bool {
 	return strings.Contains(o, match)
 }
 
-func Process(command string) (pid int) {
+func Process(command string, prefix string, log bool) (pid int) {
 	cmd := exec.Command("bash", "-c", command)
-	stdout, err := cmd.StdoutPipe()
+	out, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Println("   ERROR: Running " + command)
 		fmt.Printf("   %+v\n", err)
 	}
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		fmt.Println("   ERROR: Running " + command)
-		fmt.Printf("   %+v\n", err)
-	}
+	// combine stderr + stdout (guess this wokrs)
+	cmd.Stderr = cmd.Stdout
+	done := make(chan struct{})
+	scanner := bufio.NewScanner(out)
+	go func() {
+		for scanner.Scan() {
+			line := scanner.Text()
+			if log {
+				fmt.Println("   [" + prefix + "]  " + line)
+			}
+		}
+		done <- struct{}{}
+	}()
 	if err := cmd.Start(); err != nil {
 		fmt.Println("   ERROR: Running " + command)
 		fmt.Printf("   %+v\n", err)
 	}
 	go func() {
+		<-done
 		err = cmd.Wait()
 		if err != nil {
 			fmt.Println("   WARN: " + command)
 			fmt.Printf("   %+v\n", err)
-		}
-		o := ReaderToString(stdout)
-		if o != "" {
-			fmt.Println("   WARN: " + o)
-		}
-		e := ReaderToString(stderr)
-		if e != "" {
-			fmt.Println("   WARN: " + e)
 		}
 	}()
 	for cmd.Process.Pid == 0 {

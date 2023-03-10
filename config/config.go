@@ -9,6 +9,8 @@ type Config struct {
 	Directory    string
 	Cidr         string
 	BindServer   string
+	Log          bool
+	LogLevel     string
 	Prefix       string
 	ServerPrefix string
 	ClientPrefix string
@@ -29,6 +31,8 @@ func MakeConfig() (cfg Config) {
 	flag.StringVar(&cfg.Directory, "directory", "/tmp/nomad-box", "Working Directory")
 	flag.StringVar(&cfg.Cidr, "cidr", "10.10.10.0/24", "CIDR Block for IP Assignment")
 	flag.StringVar(&cfg.BindServer, "bind-server", "", "Network device or IP to bind the first server to")
+	flag.BoolVar(&cfg.Log, "log", false, "Show Nomad Logs in the console")
+	flag.StringVar(&cfg.LogLevel, "log-level", "INFO", "Prefix of Nomad Cluster Members")
 	flag.StringVar(&cfg.Prefix, "prefix", "nmd", "Prefix of Nomad Cluster Members")
 	flag.StringVar(&cfg.ServerPrefix, "server-prefix", "s", "Prefix of Nomad Servers")
 	flag.StringVar(&cfg.ClientPrefix, "client-prefix", "c", "Prefix of Nomad Clients")

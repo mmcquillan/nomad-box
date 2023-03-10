@@ -123,10 +123,13 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 					nomad += " -join=" + nodes[j].Ip
 				}
 			}
+			if cfg.Log {
+				nomad += " -log-level=" + cfg.LogLevel
+			}
 			nomad += " -network-interface=" + nodes[i].Device
 			nomad += " -region=" + nodes[i].Region
 			nomad += " -server"
-			nodes[i].Pid = run.Process(nomad)
+			nodes[i].Pid = run.Process(nomad, nodes[i].Name, cfg.Log)
 			time.Sleep(3 * time.Second)
 
 		} else {
@@ -141,6 +144,9 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 			if nodes[i].Config != "" {
 				nomad += " -config=" + nodes[i].Config
 			}
+			if cfg.Log {
+				nomad += " -log-level=" + cfg.LogLevel
+			}
 			for j := 0; j < len(nodes); j++ {
 				if nodes[j].Server {
 					nomad += " -servers=" + nodes[j].Ip + ":4647"
@@ -148,7 +154,7 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 			}
 			nomad += " -network-interface=" + nodes[i].Device
 			nomad += " -region=" + nodes[i].Region
-			nodes[i].Pid = run.Process(nomad)
+			nodes[i].Pid = run.Process(nomad, nodes[i].Name, cfg.Log)
 
 		}
 
