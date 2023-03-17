@@ -33,7 +33,7 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 	// import
 	if cfg.Import {
 		nodes = importNodes(cfg)
-		fmt.Println("[NOMAD-BOX] Importing Nodes...")
+		run.Header("Importing Nodes")
 		for i := 0; i < len(nodes); i++ {
 			printNode(nodes[i])
 		}
@@ -44,7 +44,7 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 	marker := 0
 
 	// start feedback
-	fmt.Println("[NOMAD-BOX] Mapping Nodes...")
+	run.Header("Mapping Nodes")
 
 	// make servers
 	for s := 0; s < cfg.Servers; s++ {
@@ -95,7 +95,7 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 
 func BuildNodes(cfg config.Config, nodes []Node) {
 
-	fmt.Println("[NOMAD-BOX] Building Nodes...")
+	run.Header("Building Nodes")
 
 	// check the nodes
 	for i := 0; i < len(nodes); i++ {
@@ -163,7 +163,7 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 }
 
 func CleanNodes(cfg config.Config, nodes []Node) {
-	fmt.Println("[NOMAD-BOX] Cleaning Nodes...")
+	run.Header("Cleaning Nodes")
 	for i := 0; i < len(nodes); i++ {
 		if !nodes[i].Server {
 			printNode(nodes[i])
@@ -185,7 +185,7 @@ func CleanNodes(cfg config.Config, nodes []Node) {
 }
 
 func CleanNodeResources(cfg config.Config, nodes []Node) {
-	fmt.Println("[NOMAD-BOX] Cleaning Node Resources...")
+	run.Header("Cleaning Node Resources")
 	for i := 0; i < len(nodes); i++ {
 		printNode(nodes[i])
 		cleanNodeResources(cfg, nodes[i])
@@ -258,32 +258,33 @@ func cleanNodeProcess(cfg config.Config, node Node) {
 }
 
 func printNode(node Node) {
-	fmt.Printf(" - %s.%s.%s [ %s : %s : %s ]\n", node.Region, node.Dc, node.Name, node.Ip, node.Device, node.Dir)
+	n := fmt.Sprintf("%s.%s.%s [ %s : %s : %s ]", node.Region, node.Dc, node.Name, node.Ip, node.Device, node.Dir)
+	run.Out(n)
 }
 
 func exportNodes(cfg config.Config, nodes []Node) {
 	node_json, err := json.MarshalIndent(nodes, "", "   ")
 	if err != nil {
-		fmt.Println("   ERROR: Cannot Export Nodes")
-		fmt.Print(err)
+		run.Error("Cannot Export Nodes")
+		run.Error(err.Error())
 	}
 	err = ioutil.WriteFile(cfg.Directory+"/nodes.json", node_json, 0644)
 	if err != nil {
-		fmt.Println("   ERROR: Cannot Export Nodes")
-		fmt.Print(err)
+		run.Error("Cannot Export Nodes")
+		run.Error(err.Error())
 	}
 }
 
 func importNodes(cfg config.Config) (nodes []Node) {
 	file, err := ioutil.ReadFile(cfg.Directory + "/nodes.json")
 	if err != nil {
-		fmt.Println("   ERROR: Cannot Import Nodes")
-		fmt.Print(err)
+		run.Error("Cannot Import Nodes")
+		run.Error(err.Error())
 	}
 	err = json.Unmarshal([]byte(file), &nodes)
 	if err != nil {
-		fmt.Println("   ERROR: Cannot Import Nodes")
-		fmt.Print(err)
+		run.Error("Cannot Import Nodes")
+		run.Error(err.Error())
 	}
 	return nodes
 }

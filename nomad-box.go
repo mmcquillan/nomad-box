@@ -7,6 +7,7 @@ import (
 	"github.com/mmcquillan/nomad-box/checks"
 	"github.com/mmcquillan/nomad-box/config"
 	"github.com/mmcquillan/nomad-box/node"
+	"github.com/mmcquillan/nomad-box/run"
 )
 
 func main() {
@@ -26,7 +27,7 @@ func main() {
 
 	// plan exit
 	if cfg.Plan {
-		fmt.Println("[NOMAD-BOX] Plan Mode (quitting)")
+		run.Out("Plan Mode (quitting)")
 		os.Exit(0)
 	}
 
@@ -34,7 +35,7 @@ func main() {
 	node.BuildNodes(cfg, nodes)
 
 	// wait to quit
-	fmt.Print("[NOMAD-BOX] Cluster Running (enter to quit)")
+	run.Out("Cluster Running (enter to quit)")
 	fmt.Scanln()
 
 	// clean up

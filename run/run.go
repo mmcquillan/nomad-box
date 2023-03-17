@@ -3,7 +3,6 @@ package run
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 	"os/exec"
 	"strings"
@@ -16,29 +15,29 @@ func Command(command string) {
 	cmd := exec.Command("bash", "-c", command)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		fmt.Println("   ERROR: Running " + command)
-		fmt.Printf("   %+v\n", err)
+		Error("Running: " + command)
+		Error(err.Error())
 	}
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		fmt.Println("   ERROR: Running " + command)
-		fmt.Printf("   %+v\n", err)
+		Error("Running: " + command)
+		Error(err.Error())
 	}
 	if err := cmd.Start(); err != nil {
-		fmt.Println("   ERROR: Running " + command)
-		fmt.Printf("   %+v\n", err)
+		Error("Running: " + command)
+		Error(err.Error())
 	}
 	o := ReaderToString(stdout)
 	if o != "" {
-		fmt.Println("   WARN: " + o)
+		Warn(o)
 	}
 	e := ReaderToString(stderr)
 	if e != "" {
-		fmt.Println("   WARN: " + e)
+		Warn(e)
 	}
 	err = cmd.Wait()
 	if e != "" {
-		fmt.Println("   WARN: " + e)
+		Warn(e)
 	}
 }
 
@@ -46,26 +45,26 @@ func CommandContains(command string, match string) bool {
 	cmd := exec.Command("bash", "-c", command)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		fmt.Println("   ERROR: Running " + command)
-		fmt.Printf("   %+v\n", err)
+		Error("Running: " + command)
+		Error(err.Error())
 	}
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		fmt.Println("   ERROR: Running " + command)
-		fmt.Printf("   %+v\n", err)
+		Error("Running: " + command)
+		Error(err.Error())
 	}
 	if err := cmd.Start(); err != nil {
-		fmt.Println("   ERROR: Running " + command)
-		fmt.Printf("   %+v\n", err)
+		Error("Running: " + command)
+		Error(err.Error())
 	}
 	o := ReaderToString(stdout)
 	e := ReaderToString(stderr)
 	if e != "" {
-		fmt.Println("   WARN: " + e)
+		Warn(e)
 	}
 	err = cmd.Wait()
 	if e != "" {
-		fmt.Println("   WARN: " + e)
+		Warn(e)
 	}
 	return strings.Contains(o, match)
 }
@@ -74,8 +73,8 @@ func Process(command string, prefix string, log bool) (pid int) {
 	cmd := exec.Command("bash", "-c", command)
 	out, err := cmd.StdoutPipe()
 	if err != nil {
-		fmt.Println("   ERROR: Running " + command)
-		fmt.Printf("   %+v\n", err)
+		Error("Running: " + command)
+		Error(err.Error())
 	}
 	// combine stderr + stdout (guess this wokrs)
 	cmd.Stderr = cmd.Stdout
@@ -85,21 +84,21 @@ func Process(command string, prefix string, log bool) (pid int) {
 		for scanner.Scan() {
 			line := scanner.Text()
 			if log {
-				fmt.Println("   [" + prefix + "]  " + line)
+				Out("[" + prefix + "] " + line)
 			}
 		}
 		done <- struct{}{}
 	}()
 	if err := cmd.Start(); err != nil {
-		fmt.Println("   ERROR: Running " + command)
-		fmt.Printf("   %+v\n", err)
+		Error("Running " + command)
+		Error(err.Error())
 	}
 	go func() {
 		<-done
 		err = cmd.Wait()
 		if err != nil {
-			fmt.Println("   WARN: " + command)
-			fmt.Printf("   %+v\n", err)
+			Warn(command)
+			Warn(err.Error())
 		}
 	}()
 	for cmd.Process.Pid == 0 {
