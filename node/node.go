@@ -160,6 +160,8 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 
 	}
 
+	run.Out("export NOMAD_ADDR=\"http://" + nodes[1].Ip + ":4646")
+
 }
 
 func CleanNodes(cfg config.Config, nodes []Node) {
