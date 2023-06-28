@@ -22,6 +22,7 @@ type Node struct {
 	Device string
 	Dir    string
 	Config string
+	Params string
 	Pid    int `json:"-"`
 }
 
@@ -62,6 +63,9 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 		if cfg.ServerConfig != "" {
 			nodes[marker].Config = cfg.ServerConfig
 		}
+		if cfg.ServerParams != "" {
+			nodes[marker].Params = cfg.ServerParams
+		}
 		nodes[marker].Pid = 0
 		printNode(nodes[marker])
 		marker++
@@ -80,6 +84,9 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 		nodes[marker].Dir = cfg.Directory + "/" + nodes[marker].Name
 		if cfg.ClientConfig != "" {
 			nodes[marker].Config = cfg.ClientConfig
+		}
+		if cfg.ClientParams != "" {
+			nodes[marker].Params = cfg.ClientParams
 		}
 		printNode(nodes[marker])
 		marker++
@@ -118,6 +125,9 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 			if nodes[i].Config != "" {
 				nomad += " -config=" + nodes[i].Config
 			}
+			if cfg.UI {
+				nomad += " -config=" + cfg.Directory + "/ui-config.hcl"
+			}
 			for j := 0; j < len(nodes); j++ {
 				if nodes[j].Server {
 					nomad += " -join=" + nodes[j].Ip
@@ -129,6 +139,9 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 			nomad += " -network-interface=" + nodes[i].Device
 			nomad += " -region=" + nodes[i].Region
 			nomad += " -server"
+			if nodes[i].Params != "" {
+				nomad += " " + nodes[i].Params
+			}
 			nodes[i].Pid = run.Process(nomad, nodes[i].Name, cfg.Log)
 			time.Sleep(3 * time.Second)
 
@@ -154,6 +167,9 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 			}
 			nomad += " -network-interface=" + nodes[i].Device
 			nomad += " -region=" + nodes[i].Region
+			if nodes[i].Params != "" {
+				nomad += " " + nodes[i].Params
+			}
 			nodes[i].Pid = run.Process(nomad, nodes[i].Name, cfg.Log)
 
 		}
@@ -208,6 +224,24 @@ func makeNodeResources(cfg config.Config, node Node) {
 
 	// make server directory
 	run.Command("mkdir -p " + node.Dir)
+
+	// write ui config
+	if cfg.UI {
+		config := []byte(`ui {
+  enabled = true
+  label {
+    text             = "NMD-BOX"
+    background_color = "red"
+    text_color       = "black"
+  }
+}
+`)
+		err := ioutil.WriteFile(cfg.Directory+"/ui-config.hcl", config, 0644)
+		if err != nil {
+			run.Error("Cannot Write UI Config")
+			run.Error(err.Error())
+		}
+	}
 
 }
 

@@ -16,11 +16,14 @@ type Config struct {
 	ClientPrefix string
 	ServerConfig string
 	ClientConfig string
+	ServerParams string
+	ClientParams string
 	Export       bool
 	Import       bool
 	Persist      bool
 	Plan         bool
 	Clean        bool
+	UI           bool
 	Ips          []string
 }
 
@@ -38,11 +41,14 @@ func MakeConfig() (cfg Config) {
 	flag.StringVar(&cfg.ClientPrefix, "client-prefix", "c", "Prefix of Nomad Clients")
 	flag.StringVar(&cfg.ServerConfig, "server-config", "", "Path to a Server Config")
 	flag.StringVar(&cfg.ClientConfig, "client-config", "", "Path to a Client Config")
+	flag.StringVar(&cfg.ServerParams, "server-params", "", "Path to a Server Params")
+	flag.StringVar(&cfg.ClientParams, "client-params", "", "Path to a Client Params")
 	flag.BoolVar(&cfg.Export, "export", false, "Export Nomad Node Layout")
 	flag.BoolVar(&cfg.Import, "import", false, "Import Nomad Node Layout")
 	flag.BoolVar(&cfg.Persist, "persist", false, "Persist resources after run")
 	flag.BoolVar(&cfg.Plan, "plan", false, "Plan mode stages but does not run")
 	flag.BoolVar(&cfg.Clean, "clean", false, "Clean mode to fix up any residual resources")
+	flag.BoolVar(&cfg.UI, "ui", false, "Adds a UI label")
 	flag.Parse()
 	return cfg
 }
