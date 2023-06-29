@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
 
 	"github.com/mmcquillan/nomad-box/checks"
 	"github.com/mmcquillan/nomad-box/config"
@@ -33,6 +34,14 @@ func main() {
 
 	// start up nodes
 	node.BuildNodes(cfg, nodes)
+
+	// setup to catch sigint
+	q := make(chan os.Signal, 1)
+	signal.Notify(q, os.Interrupt)
+	go func() {
+		<-q
+		node.CleanNodes(cfg, nodes)
+	}()
 
 	// wait to quit
 	run.Out("Cluster Running (enter to quit)")
