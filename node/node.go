@@ -18,6 +18,7 @@ type Node struct {
 	Name   string
 	Region string
 	Dc     string
+	Pool   string
 	Ip     string
 	Device string
 	Dir    string
@@ -54,6 +55,7 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 		nodes[marker].Name = cfg.Prefix + cfg.ServerPrefix + strconv.Itoa(s)
 		nodes[marker].Region = "global"
 		nodes[marker].Dc = "dc1"
+		nodes[marker].Pool = "default"
 		nodes[marker].Ip = cfg.Ips[marker]
 		nodes[marker].Device = cfg.Prefix + "eth" + strconv.Itoa(marker)
 		if s == 0 && cfg.BindServer != "" {
@@ -78,6 +80,7 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 		nodes[marker].Name = cfg.Prefix + cfg.ClientPrefix + strconv.Itoa(c)
 		nodes[marker].Region = "global"
 		nodes[marker].Dc = "dc1"
+		nodes[marker].Pool = "default"
 		nodes[marker].Ip = cfg.Ips[marker]
 		nodes[marker].Device = cfg.Prefix + "eth" + strconv.Itoa(marker)
 		nodes[marker].Pid = 0
@@ -154,6 +157,7 @@ func BuildNodes(cfg config.Config, nodes []Node) {
 			nomad += " -client"
 			nomad += " -data-dir=" + nodes[i].Dir
 			nomad += " -dc=" + nodes[i].Dc
+			nomad += " -node-pool=" + nodes[i].Pool
 			if nodes[i].Config != "" {
 				nomad += " -config=" + nodes[i].Config
 			}
