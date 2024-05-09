@@ -3,7 +3,7 @@ package node
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strconv"
 	"time"
 
@@ -34,12 +34,14 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 
 	// import
 	if cfg.Import {
-		nodes = importNodes(cfg)
-		run.Header("Importing Nodes")
-		for i := 0; i < len(nodes); i++ {
-			printNode(nodes[i])
+		nodes = importNodes()
+		if len(nodes) > 0 {
+			run.Header("Importing Nodes")
+			for i := 0; i < len(nodes); i++ {
+				printNode(nodes[i])
+			}
+			return nodes
 		}
-		return nodes
 	}
 
 	// node marker
@@ -97,7 +99,7 @@ func MakeNodes(cfg config.Config) (nodes []Node) {
 
 	// export
 	if cfg.Export {
-		exportNodes(cfg, nodes)
+		exportNodes(nodes)
 	}
 
 	return nodes
@@ -240,7 +242,7 @@ func makeNodeResources(cfg config.Config, node Node) {
   }
 }
 `)
-		err := ioutil.WriteFile(cfg.Directory+"/ui-config.hcl", config, 0644)
+		err := os.WriteFile(cfg.Directory+"/ui-config.hcl", config, 0644)
 		if err != nil {
 			run.Error("Cannot Write UI Config")
 			run.Error(err.Error())
@@ -302,24 +304,11 @@ func printNode(node Node) {
 	run.Out(n)
 }
 
-func exportNodes(cfg config.Config, nodes []Node) {
-	node_json, err := json.MarshalIndent(nodes, "", "   ")
+func importNodes() (nodes []Node) {
+	mydir, _ := os.Getwd()
+	file, err := os.ReadFile(mydir + "/nodes.json")
 	if err != nil {
-		run.Error("Cannot Export Nodes")
-		run.Error(err.Error())
-	}
-	err = ioutil.WriteFile(cfg.Directory+"/nodes.json", node_json, 0644)
-	if err != nil {
-		run.Error("Cannot Export Nodes")
-		run.Error(err.Error())
-	}
-}
-
-func importNodes(cfg config.Config) (nodes []Node) {
-	file, err := ioutil.ReadFile(cfg.Directory + "/nodes.json")
-	if err != nil {
-		run.Error("Cannot Import Nodes")
-		run.Error(err.Error())
+		return nodes
 	}
 	err = json.Unmarshal([]byte(file), &nodes)
 	if err != nil {
@@ -327,4 +316,18 @@ func importNodes(cfg config.Config) (nodes []Node) {
 		run.Error(err.Error())
 	}
 	return nodes
+}
+
+func exportNodes(nodes []Node) {
+	mydir, _ := os.Getwd()
+	imp_json, err := json.MarshalIndent(nodes, "", "   ")
+	if err != nil {
+		run.Error("Cannot Export Nodes")
+		run.Error(err.Error())
+	}
+	err = os.WriteFile(mydir+"/nodes.json", imp_json, 0644)
+	if err != nil {
+		run.Error("Cannot Export Nodes")
+		run.Error(err.Error())
+	}
 }
